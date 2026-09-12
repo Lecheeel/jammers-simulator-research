@@ -1,0 +1,5 @@
+artifacts/
+*.pcap
+*.dmp
+*.sqlite3*
+*.log
