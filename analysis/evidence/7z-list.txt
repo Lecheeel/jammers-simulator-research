@@ -1,0 +1,76 @@
+
+NanaZip 7.0 , version 2609.1 (x64) : (c) M2-Team and Contributors. All rights reserved.
+
+Scanning the drive for archives:
+1 file, 18768896 bytes (18 MiB)
+
+Listing archive: D:\benchmark_b\tools\jammers-simulator.exe
+
+--
+Path = D:\benchmark_b\tools\jammers-simulator.exe
+Type = PE
+Physical Size = 18768896
+CPU = x64
+64-bit = +
+Characteristics = Executable LargeAddress
+Headers Size = 1536
+Checksum = 0
+Image Size = 52731904
+Section Alignment = 4096
+File Alignment = 512
+Code Size = 8327680
+Initialized Data Size = 893952
+Uninitialized Data Size = 0
+Linker Version = 3.0
+OS Version = 10.0
+Image Version = 1.0
+Subsystem Version = 10.0
+Subsystem = Windows GUI
+DLL Characteristics = HighEntropyVA Relocated NX-Compatible TerminalServerAware
+Stack Reserve = 2097152
+Stack Commit = 4096
+Heap Reserve = 1048576
+Heap Commit = 4096
+Virtual Address = 0x140000000
+Comment = 
+{
+FileVersion: 1.0.0.0
+ProductVersion: 0.0.0.0
+ProductVersion: 1.0
+Comments: 竞赛环境模拟器
+CompanyName: 全国大学生数学建模竞赛
+FileDescription: 无线电干扰源环境模拟器
+LegalCopyright: 全国大学生数学建模竞赛
+ProductName: 无线电干扰源环境模拟器
+Data Directories: 16
+{
+index=1 name=IMPORT VA=0x320D000 Size=1404
+index=2 name=RESOURCE VA=0x3232000 Size=94440
+index=3 name=EXCEPTION VA=0x31DB000 Size=200232
+index=5 name=BASERELOC VA=0x320E000 Size=141564
+index=10 name=LOAD_CONFIG VA=0x90BC90 Size=320
+index=12 name=IAT VA=0x10A3720 Size=392
+}
+}
+
+   Date      Time    Attr         Size   Compressed  Name
+------------------- ----- ------------ ------------  ------------------------
+                    .....      8327185      8327680  .text
+                    .....      9105696      9105920  .rdata
+                    .....       893952       893952  .data
+                    .....       200232       200704  .pdata
+                    .....          180          512  .xdata
+                    .....         1404         1536  .idata
+                    .....       141564       141824  .reloc
+                    .....            4          512  .symtab
+                    .....         1182         1182  .rsrc\2052\version.txt
+                    .....        61762        61762  .rsrc\0\ICON\1
+                    .....        18261        18261  .rsrc\0\ICON\2
+                    .....         5616         5616  .rsrc\0\ICON\3
+                    .....         3583         3583  .rsrc\0\ICON\4
+                    .....         1903         1903  .rsrc\0\ICON\5
+                    .....          692          692  .rsrc\0\ICON\6
+                    .....           90           90  .rsrc\0\GROUP_ICON\3
+                    .....         1421         1421  .rsrc\1033\MANIFEST\1
+------------------- ----- ------------ ------------  ------------------------
+                              18764727     18767150  17 files

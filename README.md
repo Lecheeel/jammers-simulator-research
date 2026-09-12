@@ -1,87 +1,107 @@
-# Jammers Simulator Automation Lab
+# Jammers Simulator 逆向成果与自动化工具
 
-面向 `jammers-simulator.exe` 的自动化分析与授权测试工具集。项目重点是把“样本校验 → 测试准备 → 证据归档 → 逆向记录”整理成可重复的工作流，帮助研究人员在隔离 Windows 靶机上快速建立一致的实验记录。
+本仓库发布我们对 `jammers-simulator.exe` 的离线逆向结论，以及用于复现、回归和靶机测试准备的 Python/PowerShell 自动化工具。重点是“可重复测试”：固定样本哈希、自动生成场景、用虚拟时间运行仿真、通过本地 HTTP 四命令服务回归协议，并保存每次测试的环境与输出。
 
-## 安全与授权声明
+> 仅在自己拥有或明确获授权的 Windows VM/靶机中使用。默认断网；不要连接生产系统、使用真实凭据或把日志、转储、抓包和 SQLite 数据提交到仓库。
 
-仅在自己拥有或明确获授权的 Windows 虚拟机中运行样本。建议使用快照、非管理员账户、断网或专用模拟网络；不要暴露真实凭据、生产数据或宿主机共享目录。提交前清理日志、数据库和个人信息。
-
-## 自动化工具
-
-当前提供两个 PowerShell 工具：
-
-- `scripts/verify-sample.ps1`：计算并核对样本 SHA-256，防止分析过程中误用不同版本。
-- `scripts/prepare-test.ps1`：创建按案例区分的 `artifacts/<案例名>/` 目录，并保存 Windows 版本、系统构建号和测试开始时间。该脚本不会启动样本、修改系统配置或访问外部网络。
-
-### 快速开始
-
-在 PowerShell 中执行：
+## 快速开始
 
 ```powershell
-cd D:\benchmark_b\jammers-simulator-research
-
-# 1. 校验样本
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-sample.ps1
-
-# 2. 为一次测试创建独立记录目录
-powershell -ExecutionPolicy Bypass -File .\scripts\prepare-test.ps1 -CaseName baseline
+git clone https://github.com/Lecheeel/jammers-simulator-research.git
+cd jammers-simulator-research
+python -m venv .venv
+.\\.venv\\Scripts\\Activate.ps1
+python -m pip install -r requirements.txt
+powershell -ExecutionPolicy Bypass -File .\\scripts\\run-automation-smoke.ps1 -CaseName baseline
+python -m pytest -q
 ```
 
-也可以指定待校验文件：
+没有 `pytest` 时仍可直接使用核心 CLI：
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\scripts\verify-sample.ps1 -SamplePath .\sample\jammers-simulator.exe
+python .\\automation\\jammers_simulator.py --seed 1234 --count 4 --out .\\artifacts\\scenario.json
 ```
 
-执行后会生成：
+## 自动化工具（重点）
 
-```text
-artifacts/baseline/environment.txt   # 靶机系统信息
-artifacts/baseline/started-at.txt   # 测试开始时间
+### 一键 smoke
+
+`scripts/run-automation-smoke.ps1` 依次执行样本校验、测试目录准备和确定性场景生成：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\\scripts\\run-automation-smoke.ps1 -Seed 1234 -CaseName baseline
 ```
 
-研究人员可以把进程监控、Procmon、网络捕获和反编译器导出的证据放入对应案例目录。`artifacts/`、抓包、转储、日志和 SQLite 状态文件默认被 `.gitignore` 排除，避免把本地敏感数据推入公开仓库。
+输出位于 `artifacts/baseline/`：`environment.txt`、`started-at.txt` 和 `scenario.json`。
 
-### 推荐自动化流程
+### Python 仿真器
 
-```text
-verify-sample.ps1
-        ↓
-prepare-test.ps1 -CaseName <name>
-        ↓
-在隔离 VM 中执行最小测试
-        ↓
-归档进程 / 文件 / 注册表 / 网络证据
-        ↓
-恢复快照并人工复核
+`automation/jammers_simulator.py` 是从 Go 状态机和前端协议重建的本地兼容层，不依赖网络，也不需要启动原始 EXE。
+
+```python
+from jammers_simulator import SimulationRules, Session, generate_practice
+
+scenario = generate_practice(seed=1234, count=12)
+session = Session(scenario, SimulationRules.fast_test())
+print(session.enter())
+print(session.measure(0.0, 0.0, channel=1))
+print(session.summary())
 ```
 
-## 仓库结构
+已覆盖 seed 稳定生成、全向圆盘、定向扇区、角度归一化/量化、虚拟时间限制、移动/测量/清除/退出、换信道、失败原因和 snapshot/restore；规则可覆写，适合 CI 与批量测试。
 
-```text
-sample/       样本及校验信息
-docs/         逆向笔记、测试方案
-scripts/      自动化辅助脚本
+### 本地 HTTP 四命令服务
+
+`automation/simulator_http.py` 提供 loopback 服务：`/enter`、`/measure`、`/clear`、`/exit`。默认只绑定 `127.0.0.1`，支持请求校验、重复 JSON 键拒绝、请求 ID 幂等和冲突检测。
+
+```python
+from jammers_simulator import SimulationRules, generate_practice
+from simulator_http import serve
+
+server = serve(generate_practice(1234), host="127.0.0.1", port=2026,
+               rules=SimulationRules.fast_test())
+server.serve_forever()
 ```
 
-## 样本信息
+客户端请求示例：
 
-- 文件：`sample/jammers-simulator.exe`
-- SHA-256：`2373B9E7AF83735A04309E2983EB433EC46FAF7E0B8494410CE7FDED2A297C27`
-- 类型：Windows PE 可执行文件
+```powershell
+$body = @{ arena_id='default'; robot_id='local'; request_id='e1' } | ConvertTo-Json -Compress
+Invoke-RestMethod http://127.0.0.1:2026/enter -Method Post -ContentType 'application/json; charset=utf-8' -Body $body
+```
 
-运行 `powershell -ExecutionPolicy Bypass -File .\scripts\verify-sample.ps1` 可重新校验。发布大文件建议使用 Git LFS；若样本不能公开，请只提交哈希和获取方式。
+### 加密测试信封与 GPU 预筛选
+
+`automation/jammers_crypto.py` 用临时密钥离线验证 gzip、分块 AES-256-GCM、RSA-OAEP-SHA256、HKDF、SHA-256 和 Ed25519 组合；它不是官方服务器上传格式。`automation/gpu_monte_carlo.py` 提供 NumPy 参考和可选 CuPy/CUDA 后端，用于覆盖率策略预筛选，最终协议行为仍由仿真器与 HTTP 回归确认。
 
 ## 我们如何逆向
 
-采用“静态 → 受控动态 → 交叉验证”：固定哈希并记录工具/VM；使用 PE、字符串、导入表和反编译器建立画像；在隔离靶机观察进程、文件、注册表、网络和退出码；将动态证据与静态交叉引用对应。详细模板见 [`docs/reverse-notes.md`](docs/reverse-notes.md)。
+```text
+固定 SHA-256 → PE/架构/导入表/字符串分诊 → Go 元数据与符号恢复
+→ 提取 Wails/WebView2 HTML/JS → 定位 scenario/bearingnoise/simcore/testsession
+→ Python 重建状态机与几何逻辑 → 本地回归 + HTTP 协议交叉验证
+```
 
-测试前请阅读 [`docs/lab-test-plan.md`](docs/lab-test-plan.md)。
+样本为 PE32+ x86-64、Go 1.27.1、Wails v3 beta/WebView2，前端为 Vue/Vite。关键锚点包括 `scenario.GeneratePractice`、`DefaultGenerationRules`、`bearingnoise`、`simcore.directionalCoverage`、`insideJammerDisk` 和 `counterSource`。详见 [`docs/reverse-notes.md`](docs/reverse-notes.md)、[`analysis/reverse-report.md`](analysis/reverse-report.md) 与 [`analysis/evidence/`](analysis/evidence/)。
 
-## 在靶机上测试
+## 在授权靶机上测试原始 EXE
 
-使用一次性 Windows VM、可回滚快照和非管理员账户；默认断网，仅在需要时连接本地模拟网络。记录样本哈希、快照、参数、时间、进程/文件/注册表/网络证据和清理结果。结束后恢复快照并确认宿主机无新增持久化项。
+先阅读 [`docs/lab-test-plan.md`](docs/lab-test-plan.md)：一次性 Windows VM + 可回滚快照，关闭共享目录/剪贴板/凭据同步；使用非管理员账户和 Procmon/进程树/文件/注册表监控；先执行 `verify-sample.ps1`、`prepare-test.ps1`，再在监控就绪后启动 `sample/jammers-simulator.exe`。记录 PID、子进程、文件、注册表、网络、退出码和时间。账号、上传或机器人服务只使用本地假服务；结束后脱敏、检查持久化项并恢复快照。
 
-## License
+## 目录结构
 
-文档与脚本采用 MIT License。样本版权和使用权归其原权利人所有，仓库不授予额外许可。
+```text
+sample/                 固定哈希的样本
+automation/             发布的 Python 自动化工具
+tests/                  仿真器与 HTTP 协议回归
+scripts/                样本校验、测试准备、一键 smoke
+analysis/evidence/      逆向证据摘要和样例输出
+analysis/embedded/      从 PE 提取的 Wails/WebView2 资源
+docs/                   逆向笔记与靶机测试方案
+```
+
+## 已知边界与许可
+
+Python 实现是高保真兼容层，不宣称字节级等价或官方服务器可接受。官方认证、签名练习票据、SQLite 上传队列、正式行为日志加密格式、外部机器人传输和未恢复的精确参数仍需在有授权的真实集成环境中验证。
+
+文档、Python 工具和 PowerShell 脚本采用 MIT License。样本版权和使用权归原权利人，本仓库不授予额外许可。

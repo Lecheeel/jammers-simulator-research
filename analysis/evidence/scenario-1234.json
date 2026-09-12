@@ -1,0 +1,31 @@
+{
+  "version": "1",
+  "seed": 1234,
+  "width": 1000.0,
+  "height": 1000.0,
+  "jammers": [
+    {
+      "kind": "omnidirectional",
+      "x": 446.66,
+      "y": 56.74,
+      "radius": 167.54,
+      "bearing": 0.0,
+      "beam_width": 360.0,
+      "channel": 1,
+      "id": "jammer-1"
+    },
+    {
+      "kind": "omnidirectional",
+      "x": 125.54,
+      "y": 739.83,
+      "radius": 73.15,
+      "bearing": 0.0,
+      "beam_width": 360.0,
+      "channel": 1,
+      "id": "jammer-2"
+    }
+  ],
+  "target_x": 500.0,
+  "target_y": 500.0,
+  "target_radius": 20.0
+}

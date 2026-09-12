@@ -1,0 +1,6 @@
+# Core simulator automation has no third-party runtime dependency.
+cryptography>=42
+pytest>=8
+# Optional GPU pre-screen backend:
+# numpy>=2
+# cupy-cuda12x>=13

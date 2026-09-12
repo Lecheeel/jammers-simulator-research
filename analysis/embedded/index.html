@@ -1,0 +1,233 @@
+</title>
+    <script type="module" crossorigin src="/assets/index-BYdydaNq.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BEX1RyB3.css">
+  </head>
+  <body>
+    <div id="app"></div>
+  </body>
+</html>
+INSERT OR IGNORE INTO practice_statistics_tasks (
+		team_no,client_request_id,schema_version,practice_ticket_sha256,problem_no,practice_run_no,case_code,
+		entered,end_reason,cleared_jammer_count,measure_accepted_count,virtual_time_us,program_run_duration_ms,
+		channel_switch_count,clear_failure_count,jammer_count,state,attempt_count,next_attempt_at_ms,last_error_code,
+		received_at_ms,created_at_ms,updated_at_ms
+	) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,'queued',0,?,'',NULL,?,?)
+		INSERT INTO upload_tasks_v6
+		SELECT id, kind, team_no, problem_no, practice_run_no, formal_index, case_code,
+			authorization_ticket_sha256, activation_ticket_sha256, package_path,
+			package_sha256, package_bytes, client_request_id, intent_request_sha256,
+			upload_client_request_id, upload_id, upload_url, formal_upload_state,
+			intent_received_at_ms, state, attempt_count, next_attempt_at_ms, last_error_code,
+			received_at_ms, created_at_ms, updated_at_ms
+		FROM upload_tasksSELECT
+	id, kind, team_no, problem_no, practice_run_no, formal_index, case_code,
+	authorization_ticket_sha256, activation_ticket_sha256, package_path, package_sha256,
+	package_bytes, client_request_id, intent_request_sha256, upload_client_request_id,
+	upload_id, upload_url, formal_upload_state, intent_received_at_ms, state, attempt_count,
+	next_attempt_at_ms, last_error_code, received_at_ms, created_at_ms, updated_at_ms
+	FROM upload_tasks 
+		WHERE team_no = ? ORDER BY created_at_ms DESC, id DESC
+		INSERT OR IGNORE INTO upload_tasks (
+			kind, team_no, problem_no, practice_run_no, formal_index, case_code,
+			authorization_ticket_sha256, activation_ticket_sha256, package_path, package_sha256,
+			package_bytes, client_request_id, intent_request_sha256, upload_client_request_id,
+			upload_id, upload_url, formal_upload_state, intent_received_at_ms, state, attempt_count,
+			next_attempt_at_ms, last_error_code, received_at_ms, created_at_ms, updated_at_ms
+		) VALUES ('practice_summary', ?, ?, ?, NULL, ?, ?, '', ?, ?, ?, ?, '', '', '', '', 'none', NULL,
+			?, 0, ?, '', NULL, ?, ?)
+		INSERT OR IGNORE INTO upload_tasks (
+			kind, team_no, problem_no, practice_run_no, formal_index, case_code,
+			authorization_ticket_sha256, activation_ticket_sha256, package_path,
+			package_sha256, package_bytes, client_request_id, intent_request_sha256,
+			upload_client_request_id, upload_id, upload_url, formal_upload_state, intent_received_at_ms,
+			state, attempt_count, next_attempt_at_ms, last_error_code, received_at_ms,
+			created_at_ms, updated_at_ms
+		) VALUES ('formal_behavior', ?, ?, NULL, ?, ?, '', ?, ?, ?, ?, ?, ?, ?, '', '', 'none', NULL,
+			?, 0, ?, '', NULL, ?, ?)
+		(async () => {
+			try {
+				const selection = window.getSelection();
+				if (!selection.rangeCount) return;
+
+				const range = selection.getRangeAt(0);
+				const container = document.createElement('div');
+				container.appendChild(range.cloneContents());
+
+				// Check if we have any images in the selection
+				const images = container.getElementsByTagName('img');
+				if (images.length > 0) {
+					// Handle image copy
+					const img = images[0]; // Take the first image
+					const response = await fetch(img.src);
+					const blob = await response.blob();
+					await navigator.clipboard.write([
+						new ClipboardItem({
+							[blob.type]: blob
+						})
+					]);
+				} else {
+					// Handle text copy
+					const text = selection.toString();
+					if (text) {
+						await navigator.clipboard.writeText(text);
+					}
+				}
+			} catch(err) {
+				console.error('Failed to copy:', err);
+			}
+		})()
+	
+		(async () => {
+			try {
+				// Try to read all available formats
+				const clipboardItems = await navigator.clipboard.read();
+				
+				for (const clipboardItem of clipboardItems) {
+					// Check for image types
+					for (const type of clipboardItem.types) {
+						if (type.startsWith('image/')) {
+							const blob = await clipboardItem.getType(type);
+							const url = URL.createObjectURL(blob);
+							document.execCommand('insertHTML', false, '<img src="' + url + '">');
+							return;
+						}
+					}
+					
+					// If no image found, try text
+					if (clipboardItem.types.includes('text/plain')) {
+						const text = await navigator.clipboard.readText();
+						document.execCommand('insertText', false, text);
+						return;
+					}
+				}
+			} catch(err) {
+				// Fallback to text-only paste if clipboard access fails
+				try {
+					const text = await navigator.clipboard.readText();
+					document.execCommand('insertText', false, text);
+				} catch(fallbackErr) {
+					console.error('Failed to paste:', err, fallbackErr);
+				}
+			}
+		})()
+	{"schema_version":"resource-profile-v1","profile_version":"resource-profile-2026-v1","simulator_http_max_request_body_bytes":65536,"simulator_http_max_header_bytes":16384,"simulator_http_max_header_count":64,"simulator_http_max_connections":64,"simulator_http_max_inflight_actions":1,"simulator_idempotency_max_entries":131072,"simulator_replay_detail_max_records":4096,"simulator_invalid_detail_max_records":4096,"simulator_invalid_evidence_max_bytes":4194304,"scenario_json_max_bytes":61440,"formal_case_package_max_bytes":131072,"package_header_max_bytes":65536,"behavior_record_max_bytes":524288,"practice_summary_package_max_bytes":1048576,"behavior_package_upload_max_bytes":134217728,"behavior_payload_uncompressed_max_bytes":1073741824,"online_presence_probe_min_seconds":50,"online_presence_probe_max_seconds":70,"activity_transaction_queue_max_records":4096,"activity_transaction_queue_max_bytes":33554432,"activity_checkpoint_interval_seconds":1,"activity_checkpoint_record_interval":256,"server_control_json_max_bytes":16384,"server_control_response_max_bytes":262144,"server_request_header_max_bytes":32768,"server_request_header_max_count":96,"server_read_header_timeout_ms":5000,"server_control_read_timeout_ms":10000,"server_upload_read_timeout_ms":120000,"server_write_timeout_ms":30000,"server_idle_timeout_ms":60000,"server_max_concurrent_uploads_per_team":2,"server_auth_worker_queue_max":4096}
+
+		CREATE TABLE IF NOT EXISTS statistics_tasks (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			team_no TEXT NOT NULL,
+			client_request_id TEXT NOT NULL UNIQUE,
+			schema_version TEXT NOT NULL CHECK (schema_version = 'formal-run-statistics-v1'),
+			activation_ticket_sha256 TEXT NOT NULL UNIQUE,
+			entered INTEGER NOT NULL CHECK (entered IN (0,1)),
+			end_reason TEXT NOT NULL,
+			cleared_jammer_count INTEGER NOT NULL CHECK (cleared_jammer_count BETWEEN 0 AND 16),
+			measure_accepted_count INTEGER NOT NULL CHECK (measure_accepted_count BETWEEN 0 AND 131072),
+			virtual_time_us INTEGER NOT NULL CHECK (virtual_time_us BETWEEN 0 AND 360000000000),
+			program_run_duration_ms INTEGER,
+			channel_switch_count INTEGER NOT NULL CHECK (channel_switch_count BETWEEN 0 AND measure_accepted_count),
+			clear_failure_count INTEGER NOT NULL CHECK (clear_failure_count BETWEEN 0 AND 131072),
+			state TEXT NOT NULL CHECK (state IN ('queued','submitting','retry_wait','confirmed','server_rejected')),
+			attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0),
+			next_attempt_at_ms INTEGER NOT NULL,
+			last_error_code TEXT NOT NULL,
+			received_at_ms INTEGER,
+			created_at_ms INTEGER NOT NULL,
+			updated_at_ms INTEGER NOT NULL,
+			CHECK ((entered = 0 AND program_run_duration_ms IS NULL) OR
+			       (entered = 1 AND program_run_duration_ms BETWEEN 0 AND 1200000))
+		) STRICT;
+		CREATE INDEX IF NOT EXISTS statistics_tasks_due
+		ON statistics_tasks(team_no, state, next_attempt_at_ms, created_at_ms);
+		PRAGMA user_version = 1CREATE TABLE IF NOT EXISTS practice_statistics_tasks (
+		id INTEGER PRIMARY KEY AUTOINCREMENT,team_no TEXT NOT NULL,client_request_id TEXT NOT NULL UNIQUE,
+		schema_version TEXT NOT NULL CHECK(schema_version='practice-run-statistics-v1'),practice_ticket_sha256 TEXT NOT NULL UNIQUE,
+		problem_no INTEGER NOT NULL CHECK(problem_no IN(3,4)),practice_run_no INTEGER NOT NULL CHECK(practice_run_no>0),case_code TEXT NOT NULL,
+		entered INTEGER NOT NULL CHECK(entered IN(0,1)),end_reason TEXT NOT NULL,cleared_jammer_count INTEGER NOT NULL CHECK(cleared_jammer_count BETWEEN 0 AND 16),
+		measure_accepted_count INTEGER NOT NULL CHECK(measure_accepted_count BETWEEN 0 AND 131072),virtual_time_us INTEGER NOT NULL CHECK(virtual_time_us BETWEEN 0 AND 360000000000),
+		program_run_duration_ms INTEGER,channel_switch_count INTEGER NOT NULL,clear_failure_count INTEGER NOT NULL CHECK(clear_failure_count BETWEEN 0 AND 131072),
+		jammer_count INTEGER NOT NULL CHECK(jammer_count BETWEEN 0 AND 16),state TEXT NOT NULL CHECK(state IN('queued','submitting','retry_wait','confirmed','server_rejected')),
+		attempt_count INTEGER NOT NULL,next_attempt_at_ms INTEGER NOT NULL,last_error_code TEXT NOT NULL,received_at_ms INTEGER,created_at_ms INTEGER NOT NULL,updated_at_ms INTEGER NOT NULL,
+		CHECK(channel_switch_count BETWEEN 0 AND measure_accepted_count),CHECK((entered=0 AND program_run_duration_ms IS NULL) OR (entered=1 AND program_run_duration_ms BETWEEN 0 AND 1200000))
+	) STRICT; CREATE INDEX IF NOT EXISTS practice_statistics_due ON practice_statistics_tasks(team_no,state,next_attempt_at_ms,created_at_ms); PRAGMA user_version=1 (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			kind TEXT NOT NULL CHECK (kind IN ('practice_summary','formal_behavior')),
+			team_no TEXT NOT NULL,
+			problem_no INTEGER NOT NULL CHECK (problem_no IN (3,4)),
+			practice_run_no INTEGER,
+			formal_index INTEGER,
+			case_code TEXT NOT NULL,
+				authorization_ticket_sha256 TEXT NOT NULL,
+				activation_ticket_sha256 TEXT NOT NULL,
+				package_path TEXT NOT NULL,
+			package_sha256 TEXT NOT NULL,
+			package_bytes INTEGER NOT NULL CHECK (package_bytes > 0),
+			client_request_id TEXT NOT NULL,
+			intent_request_sha256 TEXT NOT NULL,
+			upload_client_request_id TEXT NOT NULL,
+			upload_id TEXT NOT NULL,
+			upload_url TEXT NOT NULL,
+			formal_upload_state TEXT NOT NULL CHECK (formal_upload_state IN
+				('none','intent_received','object_received','outer_verifying','outer_verified','outer_invalid')),
+			intent_received_at_ms INTEGER,
+			state TEXT NOT NULL CHECK (state IN ('queued','uploading','retry_wait','confirmed','local_invalid','server_rejected')),
+			attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0),
+			next_attempt_at_ms INTEGER NOT NULL,
+			last_error_code TEXT NOT NULL,
+			received_at_ms INTEGER,
+			created_at_ms INTEGER NOT NULL,
+				updated_at_ms INTEGER NOT NULL,
+				CHECK ((kind = 'practice_summary' AND practice_run_no > 0 AND formal_index IS NULL AND
+					authorization_ticket_sha256 <> '' AND activation_ticket_sha256 = '' AND
+					intent_request_sha256 = '' AND upload_client_request_id = '' AND upload_id = '' AND
+					formal_upload_state = 'none' AND intent_received_at_ms IS NULL) OR
+					(kind = 'formal_behavior' AND practice_run_no IS NULL AND formal_index BETWEEN 1 AND 3 AND
+					authorization_ticket_sha256 = '' AND activation_ticket_sha256 <> '' AND
+					intent_request_sha256 <> '' AND
+				upload_client_request_id <> '')),
+			CHECK (kind IN ('practice_summary','formal_behavior'))
+		) STRICT
+		CREATE TABLE upload_tasks_v6 (
+			id INTEGER PRIMARY KEY AUTOINCREMENT,
+			kind TEXT NOT NULL CHECK (kind IN ('practice_summary','formal_behavior')),
+			team_no TEXT NOT NULL,
+			problem_no INTEGER NOT NULL CHECK (problem_no IN (3,4)),
+			practice_run_no INTEGER,
+			formal_index INTEGER,
+			case_code TEXT NOT NULL,
+			authorization_ticket_sha256 TEXT NOT NULL,
+			activation_ticket_sha256 TEXT NOT NULL,
+			package_path TEXT NOT NULL,
+			package_sha256 TEXT NOT NULL,
+			package_bytes INTEGER NOT NULL CHECK (package_bytes > 0),
+			client_request_id TEXT NOT NULL,
+			intent_request_sha256 TEXT NOT NULL,
+			upload_client_request_id TEXT NOT NULL,
+			upload_id TEXT NOT NULL,
+			upload_url TEXT NOT NULL,
+			formal_upload_state TEXT NOT NULL CHECK (formal_upload_state IN
+				('none','intent_received','object_received','outer_verifying','outer_verified','outer_invalid')),
+			intent_received_at_ms INTEGER,
+			state TEXT NOT NULL CHECK (state IN ('queued','uploading','retry_wait','confirmed','local_invalid','server_rejected')),
+			attempt_count INTEGER NOT NULL CHECK (attempt_count >= 0),
+			next_attempt_at_ms INTEGER NOT NULL,
+			last_error_code TEXT NOT NULL,
+			received_at_ms INTEGER,
+			created_at_ms INTEGER NOT NULL,
+			updated_at_ms INTEGER NOT NULL,
+			CHECK ((kind = 'practice_summary' AND practice_run_no > 0 AND formal_index IS NULL AND
+				authorization_ticket_sha256 <> '' AND activation_ticket_sha256 = '' AND
+				intent_request_sha256 = '' AND upload_client_request_id = '' AND upload_id = '' AND
+				formal_upload_state = 'none' AND intent_received_at_ms IS NULL) OR
+				(kind = 'formal_behavior' AND practice_run_no IS NULL AND formal_index BETWEEN 1 AND 3 AND
+					authorization_ticket_sha256 = '' AND activation_ticket_sha256 <> '' AND
+					intent_request_sha256 <> '' AND upload_client_request_id <> '')),
+			CHECK (kind IN ('practice_summary','formal_behavior'))
+		) STRICT// Inline Wails events shim for InitialHTML windows.
+//
+// Pages loaded via WebviewWindowOptions.HTML are served with
+// `window.location.origin === "null"`, so the modern HTTP runtime at
+// /wails/runtime.js can never be imported (fetch fails). This shim
+// installs the minimum subset of the runtime that postMessage-based
+// custom-event traffic needs:
+//
+//   * window._wails.dispatchWailsEvent  

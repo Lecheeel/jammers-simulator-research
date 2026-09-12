@@ -3,3 +3,6 @@ artifacts/
 *.dmp
 *.sqlite3*
 *.log
+__pycache__/
+.pytest_cache/
+work/
